@@ -9,6 +9,7 @@ import (
 	sqlite "profileyou/api/config/database"
 	controllers "profileyou/api/controllers"
 	"profileyou/api/infrastructure/persistance"
+	"profileyou/api/middleware"
 	"profileyou/api/usecase"
 
 	// "profileyou/internal/repository"
@@ -100,17 +101,19 @@ func main() {
 	r.POST("/keyword/create/:word", keywordController.CreateKeyword)
 	r.POST("/keyword/update/", keywordController.UpdateKeyword)
 	r.POST("/keyword/delete/", keywordController.DeleteKeyword)
-	// r.POST("/login", userController.Authenticate)
 	r.POST("/login", userController.Authenticate)
+	r.POST("/logout", userController.Logout)
 	// r.POST("/refresh", userController.RefreshToken)
 	r.POST("/register", userController.Signup)
 
-	// 認証済のみアクセス可能なグループ
-	// authUserGroup := r.Group("/auth")
-	// authUserGroup.Use(middleware.LoginCheckMiddleware())
-	// {
-	// 	authUserGroup.GET("/keyword/create/:word", keywordController.GetKeyword)
-	// }
+	// // 認証済のみアクセス可能なグループ
+	authUserGroup := r.Group("/")
+	// authUserGroup.Use(middleware.AuthRequired())
+	authUserGroup.Use(middleware.AuthorizeJWT())
+	{
+		authUserGroup.GET("/keywords", keywordController.GetAllKeywordsGin)
+		authUserGroup.POST("/keyword/create/:word", keywordController.GetKeyword)
+	}
 	r.Run(":8080")
 
 	// out, err := exec.Command("/bin/bash", "python3 api/api.py").Output()

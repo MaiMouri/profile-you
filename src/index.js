@@ -23,7 +23,7 @@ const router = createBrowserRouter([
     children: [
       {index: true, element: <Home /> },
       {
-        path: "/keywords",
+        path: "/auth/keywords",
         element: <Keywords />,
       },
       {

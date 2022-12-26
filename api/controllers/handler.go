@@ -8,7 +8,6 @@ import (
 	"time"
 
 	gen "profileyou/api/ImageGenerator"
-	"profileyou/api/service"
 	"profileyou/api/usecase"
 	"profileyou/api/utils/errors"
 
@@ -23,9 +22,6 @@ import (
 
 type keywordController struct {
 	keywordUseCase usecase.KeywordUseCase
-	loginService   service.LoginService
-	signupService  service.SignupService
-	jWtService     service.JWTService
 }
 
 // likes to Usecase by "ku"
@@ -315,8 +311,6 @@ func (ku *keywordController) Login(ctx *gin.Context) string {
 		ctx.IndentedJSON(apiErr.Status, apiErr)
 		return ""
 	}
-
-	fmt.Println(user.Password, credential.Password)
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credential.Password))
 	if err != nil {

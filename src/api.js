@@ -1,13 +1,21 @@
 export async function getKeywords() {
-    const jwtToken = window.localStorage.getItem("token")
+    const jwtToken = window.localStorage.getItem("userToken")
     const headers = new Headers();
-      headers.append("Content-Type", "application/json");
-      headers.append("Authorization", "Bearer " + jwtToken)
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", "Bearer " + jwtToken)
   
     const requestOptions = {
         method: "GET",
         headers: headers,
     }
+
+    // Confirm the headers
+    // console.log(headers.get('Content-Type'));
+    // console.log(headers.get('Authorization'));
+
+    // authGroup version:
+    // const res = await fetch('http://localhost:8080/auth/keywords', requestOptions);
+    
     const res = await fetch('http://localhost:8080/keywords', requestOptions);
     const json = await res.json();
     if (!res.ok) throw new Error(json.message);
@@ -112,3 +120,26 @@ export async function removeKeyword(id) {
     console.log(json);
     return json;
   }
+
+  // NO NEED: belows are processed in the userSlice.js
+  // export async function userLogout() {
+  //   console.log("api.js: USER logout...");
+
+  //   let headers = new Headers();
+  //   headers.append("Content-Type", "application/json");
+
+  //   const requestOptions = {
+  //       method: "POST",
+  //       headers: {
+  //           'Content-Type': 'application/json'
+  //       },
+  //       credentials: 'include',
+  //       // body: JSON.stringify(payload),
+  //   }
+      
+  //   const res = await fetch(`http://localhost:8080/logout/`, requestOptions);
+  //   const json = await res.json();
+  //   if (!res.ok) throw new Error(json.message);
+  //   console.log(json);
+  //   return json;
+  // }

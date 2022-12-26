@@ -1,8 +1,8 @@
 // https://blog.logrocket.com/handling-user-authentication-redux-toolkit/
 
 import { useForm } from 'react-hook-form'
-import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Input from "./form/Input";
 
 // Redux
@@ -15,6 +15,7 @@ const Login = () => {
     const { loading, userInfo, error } = useSelector((state) => state.user)
     const dispatch = useDispatch()
     const { register, handleSubmit } = useForm();
+    const navigate = useNavigate();
   
     
     const [email, setEmail] = useState("");
@@ -27,58 +28,17 @@ const Login = () => {
     // const { setAlertMessage } = useOutletContext();
     // const { toggleRefresh } = useOutletContext();
     
-    const navigate = useNavigate();
-    // redirect authenticated user to profile screen
+    // redirect authenticated user to keywords page
     useEffect(() => {
         if (userInfo) {
             navigate('/keywords')
         }
     }, [navigate, userInfo])
     
-    // const handleSubmit = (event) => {
-    //     event.preventDefault();
-        
-    //     // build the request payload
-    //     let payload = {
-    //         email: email,
-    //         password: password,
-    //     }
-        
-    //     const requestOptions = {
-    //         method: "POST",
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         credentials: 'include',
-    //         body: JSON.stringify(payload),
-    //     }
-        
-    //     fetch(`/login`, requestOptions)
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //         if (data.error) {
-    //             setAlertClassName("alert-danger");
-    //             setAlertMessage(data.message);
-    //         } else {
-    //             if(data.token) {
-    //                 localStorage.setItem("user", JSON.stringify(data.token))
-    //             }
-    //             setJwtToken(data.token);
-    //             // setAlertClassName("d-none");
-    //             // setAlertMessage("");
-    //             // toggleRefresh(true);
-    //             navigate("/keywords");
-    //         }
-    //     })
-    //     .catch(error => {
-    //         // setAlertClassName("alert-danger");
-    //         // setAlertMessage(error);
-    //     })
-        
-    // }
+    
     const submitForm = (data) => {
-      console.log(data)
       dispatch(userLogin(data))
+      navigate("/keywords");
     }
 
     return(

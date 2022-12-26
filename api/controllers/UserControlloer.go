@@ -44,6 +44,7 @@ func (controller *userController) Authenticate(ctx *gin.Context) {
 	token := controller.Login(ctx)
 	fmt.Printf("Token: %v\n", token)
 	if token != "" {
+		// c.Set("Autorization": )
 		ctx.JSON(http.StatusOK, gin.H{
 			"token": token,
 		})
@@ -64,7 +65,7 @@ func UserHandler(loginService service.LoginService,
 func (controller *userController) Login(ctx *gin.Context) string {
 
 	var credential LoCred.LoginCredentials
-	fmt.Println("LoginController login cunf run")
+	fmt.Println("UserController login runs...")
 	err := ctx.ShouldBindJSON(&credential)
 	if err != nil {
 		return ""
@@ -73,7 +74,7 @@ func (controller *userController) Login(ctx *gin.Context) string {
 	user, err := controller.userUseCase.GetUserForAuth(credential.Email)
 	if err != nil {
 		fmt.Println(err)
-		apiErr := errors.NewBadRequestError("Bad Request")
+		apiErr := errors.NewBadRequestError("Bad Request for user authorization")
 		ctx.IndentedJSON(apiErr.Status, apiErr)
 		return ""
 	}
@@ -87,19 +88,22 @@ func (controller *userController) Login(ctx *gin.Context) string {
 		return ""
 	}
 
+	// ヘッダーとペイロードの生成
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
+	fmt.Printf("Header: %#v\n", token.Header) // Header: map[string]interface {}{"alg":"HS256", "typ":"JWT"}
+	fmt.Printf("Claims: %#v\n", token.Claims) // Claims: jwt.MapClaims{"exp":1674449508, "user_id":0x2}
 
-	//encoded string
+	// トークンに署名を付与
 	t, err := token.SignedString([]byte(os.Getenv("SECRET")))
 	if err != nil {
 		panic(err)
 	}
 
+	ctx.SetCookie("Authorization", t, 3600*24*30, "", "", false, true)
 	return t
-
 }
 
 func (controller *userController) Signup(ctx *gin.Context) {
@@ -131,5 +135,12 @@ func (controller *userController) Signup(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		// "token": str_out,
 		"message": "Register success!",
+	})
+}
+
+func (controller *userController) Logout(ctx *gin.Context) {
+	ctx.SetCookie("jwt", "", -1, "", "", false, true)
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "success",
 	})
 }

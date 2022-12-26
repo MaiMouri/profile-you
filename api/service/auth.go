@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -111,11 +112,11 @@ func (j *Auth) GetExpiredRefreshCookie() *http.Cookie {
 	}
 }
 
-func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Request) (string, *Claims, error) {
-	w.Header().Add("Vary", "Authorization")
+func (j *Auth) GetTokenFromHeaderAndVerify(c *gin.Context) (string, *Claims, error) {
+	// w.Header().Add("Vary", "Authorization")
 
 	// get auth header
-	authHeader := r.Header.Get("Authorization")
+	authHeader := c.Request.Header.Get("Authorization")
 
 	// sanity check
 	if authHeader == "" {

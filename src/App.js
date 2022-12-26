@@ -24,6 +24,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Keyword from "./components/Keyword";
 import Login from "./components/Login";
 import { selectKeyword, fetchItems, postKeyword, delKeyword } from './keywordsSlice';
+import { logout } from "./redux/feature/user/userSlice";
 
 
 export const userToken = createContext();
@@ -48,49 +49,36 @@ const App = () => {
   const [alertClassName, setAlertClassName] = useState("d-none");
 
 
-  const logOut = () => {
-    const requestOptions = {
-      method: "GET",
-      credentials: "include",
-    }
-
-    fetch(`/logout`, requestOptions)
-    .catch(error => {
-      console.log("error logging out", error);
-    })
-    .finally(() => {
-      localStorage.removeItem("user");
-      setJwtToken("");
-      // toggleRefresh(false);
-    })
-
-    navigate("/login");
-  }
-
+  
   //useSelectorでstoreの中のstateにアクセスできる。usersはreducer名
   const { loadingNow, error, items } = useSelector(selectKeyword);
   // const keywordList = useSelector((state) => state.keywords.value);
   const dispatch = useDispatch();
-
+  
+  const handleLogout = () => {
+    console.log("User logout");
+    dispatch(logout());
+    navigate("/login");
+  }
   // START FETCHING
   useEffect(() => {
     dispatch(fetchItems());
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
+    // const headers = new Headers();
+    // headers.append("Content-Type", "application/json");
 
-    const requestOptions = {
-      method: "GET",
-      headers: headers,
-    }
+    // const requestOptions = {
+    //   method: "GET",
+    //   headers: headers,
+    // }
 
-    fetch(`http://localhost:8080/keywords`, requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        setKeywords(data);
-      })
-      .catch(err => {
-        console.log(err);
-      })
+    // fetch(`http://localhost:8080/keywords`, requestOptions)
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     setKeywords(data);
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   })
   }, [dispatch]);
   // FINISH FETCHING
 
@@ -196,12 +184,12 @@ const App = () => {
       <Container>
         <div className="col text-end pb-3">
           <div style={{'marginBottom':'4px'}}>
-            {localStorage.getItem("user") === "" ? (
+            {localStorage.getItem("userToken") === null ? (
               <Link href="/login">
                 <span className="badge bg-success">Login</span>
               </Link>
             ) : (
-              <a href="#!" onClick={logOut}>
+              <a href="#!" onClick={handleLogout}>
                 <span className="badge bg-danger">Logout</span>
               </a>
             )}
@@ -244,7 +232,7 @@ const App = () => {
           <Image src={image} boxShadow="lg" />
         ) : null}
 
-        <pre>{JSON.stringify(word)}</pre>
+
 
         {/* Outletは共通NavBarとかを望むとき */}
         {/* <Outlet context={{keywords, confirmDelete}}/> */}
@@ -265,6 +253,7 @@ const App = () => {
           <Route path={`/keywords/:id`} element={<Keyword />} dispatch={dispatch} />
         </Routes>
         </userToken.Provider>
+
 
       </Container>
     </ChakraProvider>
